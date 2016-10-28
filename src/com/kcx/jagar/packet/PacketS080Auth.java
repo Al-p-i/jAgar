@@ -7,49 +7,43 @@ import java.nio.ByteOrder;
 
 import com.kcx.jagar.Game;
 
-public class PacketS080Auth
-{
-	public String token = "";
-	
-	public PacketS080Auth(String token)
-	{
-		this.token = token;
-	}
-	
-	public byte[] nameBytes()
-	{
-		byte[] charArray;
-		try {
-			charArray = this.token.getBytes("UTF-8");
-		    byte[] bytes = new byte[charArray.length];
-		    ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-		    for(byte c : charArray)
-		    	buffer.put(c);
-		    return bytes;
-		} catch (UnsupportedEncodingException e)
-		{
-			e.printStackTrace();
-		}
-	    return null;
-	}
-	
-	public void write() throws IOException
-	{
-		ByteBuffer buffer = ByteBuffer.allocate(this.token.getBytes("UTF-8").length+1);
-		buffer.put(0, (byte)80);
-		
-		byte[] bytes = nameBytes();
-		
-		int offset = 1;
-		
-		for(byte b : bytes)
-		{
-			buffer.put(offset, b);
-			offset++;
-		}
-		
-		System.out.println("Sending token "+this.token);
-		
-		Game.socket.session.getRemote().sendBytes(buffer);
-	}
+public class PacketS080Auth {
+  public String token = "";
+
+  public PacketS080Auth(String token) {
+    this.token = token;
+  }
+
+  public byte[] nameBytes() {
+    byte[] charArray;
+    try {
+      charArray = this.token.getBytes("UTF-8");
+      byte[] bytes = new byte[charArray.length];
+      ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+      for (byte c : charArray)
+        buffer.put(c);
+      return bytes;
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  public void write() throws IOException {
+    ByteBuffer buffer = ByteBuffer.allocate(this.token.getBytes("UTF-8").length + 1);
+    buffer.put(0, (byte) 80);
+
+    byte[] bytes = nameBytes();
+
+    int offset = 1;
+
+    for (byte b : bytes) {
+      buffer.put(offset, b);
+      offset++;
+    }
+
+    System.out.println("Sending token " + this.token);
+
+    Game.socket.session.getRemote().sendBytes(buffer);
+  }
 }

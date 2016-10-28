@@ -1,34 +1,30 @@
 package com.kcx.jagar;
 
-public class Main
-{
-	public static Main INSTANCE;
-	public static GameThread thread;
-	public static GameFrame frame;
-	private static Game game;
-	
-	public Main()
-	{
-		
-	}
-	
-	public static void main(String[] args)
-	{
-		INSTANCE = new Main();
-		thread = new GameThread();
-		frame = new GameFrame();
-		game = new Game();
-		
-		thread.run();
-	}
+import org.jetbrains.annotations.NotNull;
 
-	public static void updateGame()
-	{
-		try
-		{
-			game.tick();
-		}catch(Exception e){e.printStackTrace();};//TODO: error handling
-		frame.render();
-		game.afterRender();
-	}
+public class Main {
+  @NotNull
+  private static GameThread thread;
+  @NotNull
+  public static GameFrame frame;
+  @NotNull
+  private static Game game;
+
+  public static void main(@NotNull String[] args) {
+    thread = new GameThread();
+    frame = new GameFrame();
+    game = new Game();
+
+    thread.run();
+  }
+
+  public static void updateGame() {
+    try {
+      game.tick();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    frame.render();
+    game.afterRender();
+  }
 }
