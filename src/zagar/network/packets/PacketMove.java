@@ -1,4 +1,4 @@
-package zagar.packets;
+package zagar.network.packets;
 
 import java.io.IOException;
 
@@ -6,15 +6,14 @@ import org.eclipse.jetty.websocket.api.Session;
 
 import org.jetbrains.annotations.NotNull;
 import zagar.protocol.Command;
-import zagar.protocol.CommandEjectMass;
 import zagar.protocol.CommandMove;
 import zagar.util.JSONHelper;
 
-public class PacketSMove {
+public class PacketMove {
   public float x;
   public float y;
 
-  public PacketSMove(float x, float y) {
+  public PacketMove(float x, float y) {
     this.x = x;
     this.y = y;
   }

@@ -1,4 +1,4 @@
-package zagar.packets;
+package zagar.network.handlers;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -8,8 +8,8 @@ import zagar.view.Cell;
 import zagar.view.Game;
 import org.jetbrains.annotations.NotNull;
 
-public class PacketCUpdateCells {
-  public PacketCUpdateCells(@NotNull JsonObject json) {
+public class PacketHandlerUpdateCells {
+  public PacketHandlerUpdateCells(@NotNull JsonObject json) {
     //TODO
 /*    if (b == null) return;
     b.order(ByteOrder.LITTLE_ENDIAN);

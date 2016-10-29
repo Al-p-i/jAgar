@@ -1,20 +1,17 @@
 package zagar.network;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
-import org.eclipse.jetty.websocket.api.extensions.Frame;
 
-import zagar.packets.PacketCUpdateCells;
-import zagar.packets.PacketCResetLevel;
-import zagar.packets.PacketCLeaderBoard;
-import zagar.packets.PacketSAuth;
+import zagar.network.handlers.PacketHandlerUpdateCells;
+import zagar.network.handlers.PacketHandlerResetLevel;
+import zagar.network.handlers.PacketHandlerLeaderBoard;
+import zagar.network.packets.PacketAuth;
 import org.jetbrains.annotations.NotNull;
 import zagar.protocol.*;
 import zagar.util.JSONHelper;
@@ -48,7 +45,7 @@ public class SocketHandler {
 
     System.out.println("Connected!");
 
-    new PacketSAuth(Game.login, Game.serverToken).write();//TODO from now being session is authorized
+    new PacketAuth(Game.login, Game.serverToken).write();//TODO from now being session is authorized
     Game.spawnPlayer = 100;
     long oldTime = 0;
   }
@@ -65,13 +62,15 @@ public class SocketHandler {
     String name = json.get("name").getAsString();
     switch (name){
       case CommandLeaderBoard.NAME:
-        new PacketCLeaderBoard(json);
+        new PacketHandlerLeaderBoard(json);
         break;
       case CommandResetLevel.NAME:
-        new PacketCResetLevel();
+        new PacketHandlerResetLevel();
         break;
       case CommandUpdateCells.NAME:
-        new PacketCUpdateCells(json);
+        new PacketHandlerUpdateCells(json);
+        break;
+      case CommandAuthFailed.NAME:
     }
   }
 }

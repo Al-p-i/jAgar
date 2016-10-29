@@ -4,8 +4,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
 
-import zagar.packets.PacketSSplit;
-import zagar.packets.PacketSEjectMass;
+import zagar.network.packets.PacketSplit;
+import zagar.network.packets.PacketEjectMass;
 import org.jetbrains.annotations.NotNull;
 import zagar.view.Game;
 
@@ -16,10 +16,10 @@ public class KeyboardListener implements KeyListener {
       if (Game.socket != null && Game.socket.session != null) {
         if (Game.socket.session.isOpen()) {
           if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            new PacketSSplit().write();
+            new PacketSplit().write();
           }
           if (e.getKeyCode() == KeyEvent.VK_W) {
-            new PacketSEjectMass().write();
+            new PacketEjectMass().write();
           }
           if (e.getKeyCode() == KeyEvent.VK_T) {
             Game.rapidEject = true;

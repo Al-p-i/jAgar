@@ -13,8 +13,8 @@ import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 import zagar.network.SocketHandler;
-import zagar.packets.PacketSMove;
-import zagar.packets.PacketSEjectMass;
+import zagar.network.packets.PacketMove;
+import zagar.network.packets.PacketEjectMass;
 import org.jetbrains.annotations.NotNull;
 
 public class Game {
@@ -172,10 +172,10 @@ public class Game {
         y += (float) ((GameFrame.mouseY - GameFrame.size.height / 2) / zoom);
         followX = x;
         followY = y;
-        (new PacketSMove(x, y)).write(socket.session);
+        (new PacketMove(x, y)).write(socket.session);
 
         if (rapidEject) {
-          new PacketSEjectMass().write();
+          new PacketEjectMass().write();
         }
       }
     }

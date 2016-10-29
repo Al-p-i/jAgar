@@ -1,4 +1,4 @@
-package zagar.packets;
+package zagar.network.handlers;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -7,8 +7,8 @@ import com.google.gson.JsonObject;
 import zagar.view.Game;
 import org.jetbrains.annotations.NotNull;
 
-public class PacketCLeaderBoard {
-  public PacketCLeaderBoard(@NotNull JsonObject json) {
+public class PacketHandlerLeaderBoard {
+  public PacketHandlerLeaderBoard(@NotNull JsonObject json) {
     //TODO
 /*    b.order(ByteOrder.LITTLE_ENDIAN);
     int leaderBoardSize = b.getInt(1);
