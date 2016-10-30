@@ -7,7 +7,7 @@ import java.io.IOException;
 import zagar.network.packets.PacketSplit;
 import zagar.network.packets.PacketEjectMass;
 import org.jetbrains.annotations.NotNull;
-import zagar.view.Game;
+import zagar.Game;
 
 public class KeyboardListener implements KeyListener {
   @Override

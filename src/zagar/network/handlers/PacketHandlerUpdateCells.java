@@ -1,14 +1,18 @@
 package zagar.network.handlers;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import zagar.auth.AuthClient;
 import zagar.view.Cell;
-import zagar.view.Game;
+import zagar.Game;
 import org.jetbrains.annotations.NotNull;
 
 public class PacketHandlerUpdateCells {
+  @NotNull
+  private static final Logger log = LogManager.getLogger(PacketHandlerUpdateCells.class);
   public PacketHandlerUpdateCells(@NotNull JsonObject json) {
     //TODO
 /*    if (b == null) return;
@@ -101,7 +105,7 @@ public class PacketHandlerUpdateCells {
     }
 
     if (!flag) {
-      System.out.println("Adding new cell " + cellID + " <" + name + ">" + " /" + Game.cellsNumber + "/");
+      log.info("Adding new cell " + cellID + " <" + name + ">" + " /" + Game.cellsNumber + "/");
       Cell cell = new Cell(x, y, size, cellID);
       if (name.length() > 0) {
         Game.cellNames.put(cellID, name);

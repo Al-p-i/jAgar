@@ -1,7 +1,5 @@
 package zagar;
 
-import zagar.view.Game;
-
 public class GameThread extends Thread implements Runnable {
   @Override
   public void run() {
@@ -10,7 +8,7 @@ public class GameThread extends Thread implements Runnable {
       Main.updateGame();
       if (System.currentTimeMillis() % 100 == 0) {
         Game.fps = 1000 / (System.currentTimeMillis() - preTickTime);
-        Main.frame.setTitle("· jAgar · " + Game.fps + "fps");
+        Main.frame.setTitle("· zAgar · " + Game.fps + "fps");
       }
     }
   }

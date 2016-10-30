@@ -1,5 +1,7 @@
 package zagar.view;
 
+import zagar.Game;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;

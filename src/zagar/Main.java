@@ -1,7 +1,6 @@
 package zagar;
 
 import org.jetbrains.annotations.NotNull;
-import zagar.view.Game;
 import zagar.view.GameFrame;
 
 public class Main {

@@ -1,6 +1,7 @@
 package zagar.view;
 
 import org.jetbrains.annotations.NotNull;
+import zagar.Game;
 import zagar.Main;
 
 import java.awt.Color;

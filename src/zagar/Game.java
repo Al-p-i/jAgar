@@ -1,4 +1,4 @@
-package zagar.view;
+package zagar;
 
 import java.io.IOException;
 import java.net.URI;
@@ -9,15 +9,25 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
+import zagar.auth.AuthClient;
 import zagar.network.SocketHandler;
 import zagar.network.packets.PacketMove;
 import zagar.network.packets.PacketEjectMass;
 import org.jetbrains.annotations.NotNull;
+import zagar.util.Reporter;
+import zagar.view.Cell;
+import zagar.view.GameFrame;
+
+import static zagar.GameConstants.*;
 
 public class Game {
+  @NotNull
+  private static final Logger log = LogManager.getLogger(Game.class);
   @NotNull
   public static Cell[] cells = new Cell[32768];
   public static int cellsNumber = 0;
@@ -31,33 +41,31 @@ public class Game {
   public static float followX;
   public static float followY;
   public static double zoom;
-  private double zoomm = -1;
-  private int sortTimer;
   public static int score;
   @NotNull
   public static SocketHandler socket;
-
   @NotNull
-  public String serverIP;
+  public static String serverToken;
   @NotNull
-  public static String serverToken = "default_token";
-  @NotNull
-  public static String login = "default_login";
+  public static String login = DEFAULT_LOGIN;
   public static int spawnPlayer = -1;
   @NotNull
   public static HashMap<Integer, String> cellNames = new HashMap<>();
-  @NotNull
-  public static String mode = "";
   public static long fps = 60;
   public static boolean rapidEject;
+  @NotNull
+  public static GameState state = GameState.NOT_AUTHORIZED;
+  private double zoomm = -1;
+  private int sortTimer;
+  @NotNull
+  public String gameServerUrl;
+  @NotNull
+  public AuthClient authClient = new AuthClient();
 
   public Game() {
-    this.serverIP = "ws://" + (JOptionPane.showInputDialog(null, "Ip", "localhost:7001"));
-    this.login = (JOptionPane.showInputDialog(null, "Login", "login"));
-    String password = (JOptionPane.showInputDialog(null, "Password", "pass"));
-    this.mode = selectMode();
+    this.gameServerUrl = "ws://" + (JOptionPane.showInputDialog(null, "Host", DEFAULT_GAME_SERVER_HOST + ":" + DEFAULT_GAME_SERVER_PORT));
 
-    this.serverToken = login();
+    authenticate();
 
     this.spawnPlayer = 100;
 
@@ -66,11 +74,11 @@ public class Game {
     new Thread(() -> {
       try {
         client.start();
-        URI serverURI = new URI(serverIP + "/clientConnection");
+        URI serverURI = new URI(gameServerUrl + "/clientConnection");
         ClientUpgradeRequest request = new ClientUpgradeRequest();
-        request.setHeader("Origin", "http://agar.io");
+        request.setHeader("Origin", "zagar.io");
         client.connect(socket, serverURI, request);
-        System.out.println("Trying to connect <" + serverIP + ">");
+        log.info("Trying to connect <" + gameServerUrl + ">");
         socket.awaitClose(7, TimeUnit.DAYS);
       } catch (Throwable t) {
         t.printStackTrace();
@@ -78,17 +86,46 @@ public class Game {
     }).start();
   }
 
-  private String login() {
-    return "testtoken";//TODO
+  private void authenticate() {
+    while (serverToken == null) {
+      AuthOption authenticate = chooseAuthOption();
+      this.login = JOptionPane.showInputDialog(null, "Login", DEFAULT_LOGIN);
+      String password = (JOptionPane.showInputDialog(null, "Password", DEFAULT_PASSWORD));
+      if (login == null) {
+        login = DEFAULT_LOGIN;
+      }
+      if (password == null) {
+        password = DEFAULT_PASSWORD;
+      }
+      if (authenticate == AuthOption.REGISTER) {
+        if (!authClient.register(login, password)) {
+          Reporter.reportFail("Register failed", "Register failed");
+        }
+      } else {
+        serverToken = authClient.login(Game.login, password);
+        if (serverToken == null) {
+          Reporter.reportWarn("Login failed", "Login failed");
+        }
+      }
+    }
   }
 
   @NotNull
-  private String selectMode() {
-    String mode = (JOptionPane.showInputDialog(null, "Game mode:\n\nffa\nteams\nexperimental\nparty", "ffa")).toLowerCase().replace("ffa", "");
-    if (mode.length() > 0) {
-      mode = ":" + mode;
+  private AuthOption chooseAuthOption() {
+    Object[] options = {AuthOption.REGISTER, AuthOption.LOGIN};
+    int authOption = JOptionPane.showOptionDialog(null,
+        "Choose authentication option",
+        "Authentication",
+        JOptionPane.YES_NO_CANCEL_OPTION,
+        JOptionPane.QUESTION_MESSAGE,
+        null,
+        options,
+        options[1]);
+
+    if (authOption == 1) {
+      return AuthOption.LOGIN;
     }
-    return mode;
+    return AuthOption.REGISTER;
   }
 
   public void tick() throws IOException {
@@ -98,7 +135,7 @@ public class Game {
       }
 
       if (spawnPlayer == 0) {
-        System.out.println("Resetting level (death)");
+        log.info("Resetting level (death)");
       }
       if (Game.player.size() == 0) {
         if (socket.session.isOpen() && spawnPlayer == -1) {
@@ -117,7 +154,7 @@ public class Game {
       for (Cell c : Game.cells) {
         if (c != null) {
           if (c.id == i && !player.contains(c)) {
-            System.out.println("Centered cell " + c.name);
+            log.info("Centered cell " + c.name);
             player.add(c);
             toRemove.add(i);
           }
@@ -224,5 +261,13 @@ public class Game {
     if (spawnPlayer == -1) {
       spawnPlayer = 100;
     }
+  }
+
+  private enum AuthOption {
+    REGISTER, LOGIN;
+  }
+
+  public enum GameState {
+    NOT_AUTHORIZED, AUTHORIZED
   }
 }

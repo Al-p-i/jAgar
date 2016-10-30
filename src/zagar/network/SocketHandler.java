@@ -5,20 +5,22 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 
-import zagar.network.handlers.PacketHandlerUpdateCells;
-import zagar.network.handlers.PacketHandlerResetLevel;
-import zagar.network.handlers.PacketHandlerLeaderBoard;
+import protocol.*;
+import zagar.network.handlers.*;
 import zagar.network.packets.PacketAuth;
 import org.jetbrains.annotations.NotNull;
-import zagar.protocol.*;
 import zagar.util.JSONHelper;
-import zagar.view.Game;
+import zagar.Game;
 
-@WebSocket(maxTextMessageSize = 2 ^ 32)
+@WebSocket(maxTextMessageSize = 1024)
 public class SocketHandler {
+  @NotNull
+  private static final Logger log = LogManager.getLogger("<<<");
 
   @NotNull
   private final CountDownLatch closeLatch;
@@ -35,7 +37,7 @@ public class SocketHandler {
 
   @OnWebSocketClose
   public void onClose(int statusCode, @NotNull String reason) {
-    System.out.println("Closed." + statusCode + "<" + reason + ">");
+    log.info("Closed." + statusCode + "<" + reason + ">");
     this.closeLatch.countDown();
   }
 
@@ -43,26 +45,27 @@ public class SocketHandler {
   public void onConnect(@NotNull Session session) throws IOException {
     this.session = session;
 
-    System.out.println("Connected!");
+    log.info("Connected!");
 
-    new PacketAuth(Game.login, Game.serverToken).write();//TODO from now being session is authorized
+    new PacketAuth(Game.login, Game.serverToken).write();
     Game.spawnPlayer = 100;
     long oldTime = 0;
   }
 
   @OnWebSocketMessage
   public void onTextPacket(@NotNull String msg) {
+    log.info("Received packet: " + msg);
     if (session.isOpen()) {
       handlePacket(msg);
     }
   }
 
-  public void handlePacket(String msg) {
+  public void handlePacket(@NotNull String msg) {
     JsonObject json = JSONHelper.getJSONObject(msg);
-    String name = json.get("name").getAsString();
-    switch (name){
+    String name = json.get("command").getAsString();
+    switch (name) {
       case CommandLeaderBoard.NAME:
-        new PacketHandlerLeaderBoard(json);
+        new PacketHandlerLeaderBoard(msg);
         break;
       case CommandResetLevel.NAME:
         new PacketHandlerResetLevel();
@@ -70,7 +73,12 @@ public class SocketHandler {
       case CommandUpdateCells.NAME:
         new PacketHandlerUpdateCells(json);
         break;
-      case CommandAuthFailed.NAME:
+      case CommandAuthFail.NAME:
+        new PacketHandlerAuthFail(msg);
+        break;
+      case CommandAuthOk.NAME:
+        new PacketHandlerAuthOk();
+        break;
     }
   }
 }
