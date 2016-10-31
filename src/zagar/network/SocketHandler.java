@@ -67,11 +67,8 @@ public class SocketHandler {
       case CommandLeaderBoard.NAME:
         new PacketHandlerLeaderBoard(msg);
         break;
-      case CommandResetLevel.NAME:
-        new PacketHandlerResetLevel();
-        break;
-      case CommandUpdateCells.NAME:
-        new PacketHandlerUpdateCells(json);
+      case CommandReplicate.NAME:
+        new PacketHandlerReplicate(msg);
         break;
       case CommandAuthFail.NAME:
         new PacketHandlerAuthFail(msg);

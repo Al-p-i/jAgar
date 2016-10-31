@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
+import org.jetbrains.annotations.Nullable;
 import zagar.auth.AuthClient;
 import zagar.network.SocketHandler;
 import zagar.network.packets.PacketMove;
@@ -88,7 +89,10 @@ public class Game {
 
   private void authenticate() {
     while (serverToken == null) {
-      AuthOption authenticate = chooseAuthOption();
+      AuthOption authOption = chooseAuthOption();
+      if (authOption == null) {
+        return;
+      }
       this.login = JOptionPane.showInputDialog(null, "Login", DEFAULT_LOGIN);
       String password = (JOptionPane.showInputDialog(null, "Password", DEFAULT_PASSWORD));
       if (login == null) {
@@ -97,7 +101,7 @@ public class Game {
       if (password == null) {
         password = DEFAULT_PASSWORD;
       }
-      if (authenticate == AuthOption.REGISTER) {
+      if (authOption == AuthOption.REGISTER) {
         if (!authClient.register(login, password)) {
           Reporter.reportFail("Register failed", "Register failed");
         }
@@ -110,9 +114,9 @@ public class Game {
     }
   }
 
-  @NotNull
+  @Nullable
   private AuthOption chooseAuthOption() {
-    Object[] options = {AuthOption.REGISTER, AuthOption.LOGIN};
+    Object[] options = {AuthOption.LOGIN, AuthOption.REGISTER};
     int authOption = JOptionPane.showOptionDialog(null,
         "Choose authentication option",
         "Authentication",
@@ -122,10 +126,13 @@ public class Game {
         options,
         options[1]);
 
-    if (authOption == 1) {
+    if (authOption == 0) {
       return AuthOption.LOGIN;
     }
-    return AuthOption.REGISTER;
+    if (authOption == 1) {
+      return AuthOption.REGISTER;
+    }
+    return null;
   }
 
   public void tick() throws IOException {

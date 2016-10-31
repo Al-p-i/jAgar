@@ -23,14 +23,15 @@ public class Cell {
   public double xRender;
   public double yRender;
   public int mass;
-  public boolean virus = false;
+  private final boolean virus;
   private float rotation = 0;
 
-  public Cell(double x, double y, float size, int id) {
+  public Cell(double x, double y, float size, int id, boolean isVirus) {
     this.x = x;
     this.y = y;
     this.size = size;
     this.id = id;
+    this.virus = isVirus;
     this.xRender = this.x;
     this.yRender = this.y;
     this.sizeRender = this.size;

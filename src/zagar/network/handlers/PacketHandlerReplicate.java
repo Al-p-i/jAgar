@@ -5,15 +5,32 @@ import java.nio.ByteBuffer;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import zagar.auth.AuthClient;
+import protocol.CommandLeaderBoard;
+import protocol.CommandReplicate;
+import zagar.util.JSONDeserializationException;
+import zagar.util.JSONHelper;
 import zagar.view.Cell;
 import zagar.Game;
 import org.jetbrains.annotations.NotNull;
 
-public class PacketHandlerUpdateCells {
+public class PacketHandlerReplicate {
   @NotNull
-  private static final Logger log = LogManager.getLogger(PacketHandlerUpdateCells.class);
-  public PacketHandlerUpdateCells(@NotNull JsonObject json) {
+  private static final Logger log = LogManager.getLogger(PacketHandlerReplicate.class);
+
+  public PacketHandlerReplicate(@NotNull String json) {
+    CommandReplicate commandReplicate;
+    try {
+      commandReplicate = JSONHelper.fromJSON(json, CommandReplicate.class);
+    } catch (JSONDeserializationException e) {
+      e.printStackTrace();
+      return;
+    }
+    Cell[] gameCells = new Cell[commandReplicate.getCells().length];
+    for (int i = 0; i < commandReplicate.getCells().length; i++) {
+      protocol.model.Cell c = commandReplicate.getCells()[i];
+      gameCells[i] = new Cell(c.getX(), c.getY(), c.getSize(), c.getCellId(), c.isVirus());
+    }
+
     //TODO
 /*    if (b == null) return;
     b.order(ByteOrder.LITTLE_ENDIAN);
@@ -106,12 +123,11 @@ public class PacketHandlerUpdateCells {
 
     if (!flag) {
       log.info("Adding new cell " + cellID + " <" + name + ">" + " /" + Game.cellsNumber + "/");
-      Cell cell = new Cell(x, y, size, cellID);
+      Cell cell = new Cell(x, y, size, cellID, virus);
       if (name.length() > 0) {
         Game.cellNames.put(cellID, name);
       }
       cell.setColor(red, green, blue);
-      cell.virus = virus;
       Game.addCell(cell);
       cell.tick();
     } else {
@@ -125,7 +141,6 @@ public class PacketHandlerUpdateCells {
               cell.name = name;
               Game.cellNames.put(cellID, name);
             }
-            cell.virus = virus;
             cell.setColor(red, green, blue);
           }
         }
