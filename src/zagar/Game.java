@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
@@ -16,7 +17,7 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 import org.jetbrains.annotations.Nullable;
 import zagar.auth.AuthClient;
-import zagar.network.SocketHandler;
+import zagar.network.ServerConnectionSocket;
 import zagar.network.packets.PacketMove;
 import zagar.network.packets.PacketEjectMass;
 import org.jetbrains.annotations.NotNull;
@@ -30,10 +31,9 @@ public class Game {
   @NotNull
   private static final Logger log = LogManager.getLogger(Game.class);
   @NotNull
-  public static Cell[] cells = new Cell[32768];
-  public static int cellsNumber = 0;
+  public static volatile Cell[] cells = new Cell[0];
   @NotNull
-  public static ArrayList<Cell> player = new ArrayList<>();
+  public static ConcurrentLinkedDeque<Cell> player = new ConcurrentLinkedDeque<>();
   @NotNull
   public static String[] leaderBoard = new String[10];
   public static double maxSizeX, maxSizeY, minSizeX, minSizeY;
@@ -44,7 +44,7 @@ public class Game {
   public static double zoom;
   public static int score;
   @NotNull
-  public static SocketHandler socket;
+  public static ServerConnectionSocket socket;
   @NotNull
   public static String serverToken;
   @NotNull
@@ -71,7 +71,7 @@ public class Game {
     this.spawnPlayer = 100;
 
     final WebSocketClient client = new WebSocketClient();
-    this.socket = new SocketHandler();
+    this.socket = new ServerConnectionSocket();
     new Thread(() -> {
       try {
         client.start();
@@ -149,7 +149,6 @@ public class Game {
           score = 0;
           Game.player.clear();
           Game.cells = new Cell[Game.cells.length];
-          cellsNumber = 0;
           cellNames.clear();
         }
       }
@@ -224,7 +223,7 @@ public class Game {
       }
     }
 
-    for (int i = 0; i < cellsNumber; i++) {
+    for (int i = 0; i < cells.length; i++) {
       if (cells[i] != null) {
         cells[i].tick();
       }
@@ -235,17 +234,6 @@ public class Game {
     if (sortTimer > 10) {
       sortCells();
       sortTimer = 0;
-    }
-  }
-
-  public void afterRender() {
-  }
-
-  public static void addCell(@NotNull Cell c) {
-    cells[cellsNumber] = c;
-    cellsNumber++;
-    if (cellsNumber > cells.length) {
-      cellsNumber = 0;
     }
   }
 

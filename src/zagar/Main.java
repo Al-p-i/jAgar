@@ -5,18 +5,21 @@ import zagar.view.GameFrame;
 
 public class Main {
   @NotNull
-  private static GameThread thread;
-  @NotNull
   public static GameFrame frame;
   @NotNull
   private static Game game;
 
   public static void main(@NotNull String[] args) {
-    thread = new GameThread();
+    GameThread thread = new GameThread();
     frame = new GameFrame();
     game = new Game();
 
     thread.run();
+    try {
+      thread.join();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 
   public static void updateGame() {
@@ -26,6 +29,5 @@ public class Main {
       e.printStackTrace();
     }
     frame.render();
-    game.afterRender();
   }
 }

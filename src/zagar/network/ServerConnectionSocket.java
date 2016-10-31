@@ -18,7 +18,7 @@ import zagar.util.JSONHelper;
 import zagar.Game;
 
 @WebSocket(maxTextMessageSize = 1024)
-public class SocketHandler {
+public class ServerConnectionSocket {
   @NotNull
   private static final Logger log = LogManager.getLogger("<<<");
 
@@ -27,7 +27,7 @@ public class SocketHandler {
   @NotNull
   public Session session;
 
-  public SocketHandler() {
+  public ServerConnectionSocket() {
     this.closeLatch = new CountDownLatch(1);
   }
 

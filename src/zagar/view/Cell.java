@@ -61,14 +61,11 @@ public class Cell {
       float avgX = 0;
       float avgY = 0;
 
-      try {
-        for (Cell c : Game.player) {
-          if (c != null) {
-            avgX += c.xRender;
-            avgY += c.yRender;
-          }
+      for (Cell c : Game.player) {
+        if (c != null) {
+          avgX += c.xRender;
+          avgY += c.yRender;
         }
-      } catch (ConcurrentModificationException e) {
       }
 
       avgX /= Game.player.size();

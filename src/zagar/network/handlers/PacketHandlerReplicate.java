@@ -1,6 +1,7 @@
 package zagar.network.handlers;
 
 import java.nio.ByteBuffer;
+import java.util.Collections;
 
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +31,10 @@ public class PacketHandlerReplicate {
       protocol.model.Cell c = commandReplicate.getCells()[i];
       gameCells[i] = new Cell(c.getX(), c.getY(), c.getSize(), c.getCellId(), c.isVirus());
     }
+
+    Game.player.clear();
+    Collections.addAll(Game.player, gameCells);
+    Game.cells = gameCells;
 
     //TODO
 /*    if (b == null) return;
@@ -79,7 +84,7 @@ public class PacketHandlerReplicate {
     }*/
   }
 
-  private int addCell(int offset, @NotNull ByteBuffer b) {
+  /*private int addCell(int offset, @NotNull ByteBuffer b) {
     int cellID = b.getInt(offset);
     if (cellID == 0) return offset;
     int x = b.getInt(offset + 4);
@@ -152,5 +157,5 @@ public class PacketHandlerReplicate {
       offset = addCell(offset, b);
     }
     return offset;
-  }
+  }*/
 }

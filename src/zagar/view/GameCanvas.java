@@ -28,6 +28,12 @@ public class GameCanvas extends JPanel {
     setVisible(true);
   }
 
+  @Override
+  protected void paintComponent(Graphics g) {
+    super.paintComponent(g);
+    render();
+  }
+
   public void render() {
     Graphics ggg = screen.getGraphics();
     Graphics2D g = ((Graphics2D) ggg);
@@ -42,21 +48,17 @@ public class GameCanvas extends JPanel {
       g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
 
-
     if (Game.player.size() > 0) {
       int size = 1;
 
       float avgX = 0;
       float avgY = 0;
 
-      try {
-        for (Cell c : Game.player) {
-          if (c != null) {
-            avgX += c.xRender;
-            avgY += c.yRender;
-          }
+      for (Cell c : Game.player) {
+        if (c != null) {
+          avgX += c.xRender;
+          avgY += c.yRender;
         }
-      } catch (ConcurrentModificationException e) {
       }
 
       avgX /= Game.player.size();
@@ -78,7 +80,7 @@ public class GameCanvas extends JPanel {
 
     g.setFont(fontCells);
 
-    for (int i2 = 0; i2 < Game.cellsNumber; i2++) {
+    for (int i2 = 0; i2 < Game.cells.length; i2++) {
       Cell cell = Game.cells[i2];
       if (cell != null) {
         cell.render(g, 1);
